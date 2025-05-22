@@ -1,0 +1,7 @@
+services:
+  - type: cron
+    name: ainewssummarizer
+    env: python
+    schedule: "@hourly"
+    buildCommand: ""
+    startCommand: python main.py

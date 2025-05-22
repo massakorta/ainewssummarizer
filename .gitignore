@@ -1,0 +1,10 @@
+# Ignorera miljövariabler
+.env
+
+# Ignorera virtuella miljöer
+.venv/
+
+# Ignorera cachefiler och metadata
+__pycache__/
+*.pyc
+.DS_Store
