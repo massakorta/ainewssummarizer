@@ -1,7 +1,7 @@
 async function fetchArticles() {
-  const res = await fetch("http://localhost:5000/articles");
-  const articles = await res.json();
-  const container = document.getElementById("news-container");
+    const res = await fetch("https://ainewssummarizer-api.onrender.com/articles");
+    const articles = await res.json();
+    const container = document.getElementById("news-container");
 
   if (articles.length === 0) {
     container.innerHTML = "<p>Inga nyheter ännu.</p>";

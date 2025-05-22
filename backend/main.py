@@ -8,12 +8,22 @@ from rss_reader import fetch_rss_entries_today
 from aihelper import summarize_article, translate_to_swedish, shorten_the_summary
 from supabase_db import save_article_data, article_exists
 
-rss_url = "https://feeds.elpais.com/mrss-s/pages/ep/site/elpais.com/portada"
+rss_urls = [
+    "https://feeds.elpais.com/mrss-s/pages/ep/site/elpais.com/section/internacional/portada",
+    "https://feeds.elpais.com/mrss-s/pages/ep/site/elpais.com/section/economia/portada",
+    "https://feeds.elpais.com/mrss-s/pages/ep/site/elpais.com/section/espana/portada",
+    "https://feeds.elpais.com/mrss-s/pages/ep/site/elpais.com/section/tecnologia/portada",
+    "https://feeds.elpais.com/mrss-s/pages/ep/site/elpais.com/section/ciencia/portada"
+]
+rss_extra_url = "https://feeds.elpais.com/mrss-s/pages/ep/site/elpais.com/section/ultimas-noticias/portada"
 
 print("🔍 Hämtar dagens nyheter...\n")
-entries = fetch_rss_entries_today(rss_url)
+all_entries = []
+for rss_url in rss_urls:
+    entries = fetch_rss_entries_today(rss_url)
+    all_entries.extend(entries)
 
-for entry in entries:
+for entry in all_entries:
     if article_exists(entry.link):
         print(f"⏩ Hoppar över redan sparad artikel i databasen: {entry.title}")
         continue
