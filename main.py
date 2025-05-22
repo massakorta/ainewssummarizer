@@ -6,18 +6,16 @@ import os
 
 from rss_reader import fetch_rss_entries_today
 from aihelper import summarize_article, translate_to_swedish, shorten_the_summary
-from database import load_seen_articles, save_seen_articles, save_article_data
+from supabase_db import save_article_data, article_exists
 
 rss_url = "https://feeds.elpais.com/mrss-s/pages/ep/site/elpais.com/portada"
-seen_articles = load_seen_articles()
-new_seen_articles = set(seen_articles)
 
 print("🔍 Hämtar dagens nyheter...\n")
 entries = fetch_rss_entries_today(rss_url)
 
 for entry in entries:
-    if entry.link in seen_articles:
-        print(f"⏩ Hoppar över redan sammanfattad artikel: {entry.title}")
+    if article_exists(entry.link):
+        print(f"⏩ Hoppar över redan sparad artikel i databasen: {entry.title}")
         continue
 
     print(f"📰 Titel: {entry.title}")
@@ -52,6 +50,3 @@ for entry in entries:
         "date": soup.find("time").get("datetime") if soup.find("time") else None
     }
     save_article_data(article_data)
-    new_seen_articles.add(entry.link)
-
-save_seen_articles(new_seen_articles)
