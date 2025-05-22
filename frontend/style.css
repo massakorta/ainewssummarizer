@@ -33,10 +33,11 @@ body {
   
   .article {
     background-color: #fff;
-    margin: 0.5rem 1rem;
-    border-radius: 12px;
+    margin: 0;
+    border-radius: 3px;
+    border-bottom: solid 1px gray;
+    padding: 0.5rem 1rem;
     box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
-    padding: 1rem;
     cursor: pointer;
     transition: transform 0.2s ease-in-out;
   }
@@ -56,11 +57,13 @@ body {
   .meta {
     font-size: 0.85rem;
     color: #666;
+    text-align: right;
   }
   
   .short {
     font-size: 1rem;
     color: #111;
+    margin-top: 0.3rem;
   }
   
   /* Modal */
@@ -105,7 +108,7 @@ body {
     --bg: #f2f2f7;
     --fg: #000;
     --card: #fff;
-    --meta: #666;
+    --meta: #a3a3a3;
     --link: #007aff;
   }
   
@@ -113,7 +116,7 @@ body {
     --bg: #1c1c1e;
     --fg: #fff;
     --card: #2c2c2e;
-    --meta: #aaa;
+    --meta: #6f6f6f;
     --link: #0a84ff;
   }
   
@@ -122,12 +125,12 @@ body {
     color: var(--fg);
   }
   
-  .article, .modal-content {
+  .article, .modal-content, .short {
     background: var(--card);
     color: var(--fg);
   }
   
-  .meta, .short {
+  .meta {
     color: var(--meta);
   }
   

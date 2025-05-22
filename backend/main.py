@@ -13,9 +13,9 @@ rss_urls = [
     "https://feeds.elpais.com/mrss-s/pages/ep/site/elpais.com/section/economia/portada",
     "https://feeds.elpais.com/mrss-s/pages/ep/site/elpais.com/section/espana/portada",
     "https://feeds.elpais.com/mrss-s/pages/ep/site/elpais.com/section/tecnologia/portada",
-    "https://feeds.elpais.com/mrss-s/pages/ep/site/elpais.com/section/ciencia/portada"
+    "https://feeds.elpais.com/mrss-s/pages/ep/site/elpais.com/section/ciencia/portada",
+    "https://feeds.elpais.com/mrss-s/pages/ep/site/elpais.com/section/ultimas-noticias/portada"
 ]
-rss_extra_url = "https://feeds.elpais.com/mrss-s/pages/ep/site/elpais.com/section/ultimas-noticias/portada"
 
 print("🔍 Hämtar dagens nyheter...\n")
 all_entries = []
