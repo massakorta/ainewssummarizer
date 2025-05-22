@@ -1,0 +1,148 @@
+body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    background: #f2f2f7;
+    color: #000;
+
+  font-size: 17px;
+  line-height: 1.6;
+  letter-spacing: 0.2px;
+  }
+  main {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 0 1rem;
+  }
+  header {
+    text-align: center;
+    background-color: #fff;
+    padding: 1rem;
+    font-size: 1.25rem;
+    font-weight: 600;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+  }
+  
+  #news-container {
+    padding: 0;
+    margin: 0;
+    list-style: none;
+  }
+  
+  .article {
+    background-color: #fff;
+    margin: 0.5rem 1rem;
+    border-radius: 12px;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+    padding: 1rem;
+    cursor: pointer;
+    transition: transform 0.2s ease-in-out;
+  }
+  
+  .article:hover {
+    transform: scale(1.01);
+  }
+  
+  .article h2 {
+    
+  font-size: 1.2rem;
+  font-weight: 600;
+  line-height: 1.4;
+    margin: 0;
+  }
+  
+  .meta {
+    font-size: 0.85rem;
+    color: #666;
+  }
+  
+  .short {
+    font-size: 1rem;
+    color: #111;
+  }
+  
+  /* Modal */
+  .modal {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+    padding: 1rem;
+  }
+  
+  .modal-content {
+    background: white;
+    padding: 2rem;
+    border-radius: 12px;
+    max-width: 600px;
+    width: 90%;
+    max-height: 90vh;
+    overflow-y: auto;
+    position: relative;
+  }
+  .short, .meta, .modal-content p {
+    font-size: 1rem;
+    line-height: 1.6;
+  }
+
+  .close-button {
+    font-size: 1.5rem;
+    position: absolute;
+    top: 1rem;
+    right: 1.5rem;
+    cursor: pointer;
+  }
+  
+  .hidden {
+    display: none;
+  }
+  :root {
+    --bg: #f2f2f7;
+    --fg: #000;
+    --card: #fff;
+    --meta: #666;
+    --link: #007aff;
+  }
+  
+  .dark {
+    --bg: #1c1c1e;
+    --fg: #fff;
+    --card: #2c2c2e;
+    --meta: #aaa;
+    --link: #0a84ff;
+  }
+  
+  body, header {
+    background: var(--bg);
+    color: var(--fg);
+  }
+  
+  .article, .modal-content {
+    background: var(--card);
+    color: var(--fg);
+  }
+  
+  .meta, .short {
+    color: var(--meta);
+  }
+  
+  .read-more, .modal a {
+    color: var(--link);
+  }
+  
+  /* Toggle style (simple for now) */
+  #mode-toggle {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    font-size: 1.2rem;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: inherit;
+  }

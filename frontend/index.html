@@ -1,14 +1,26 @@
 <!DOCTYPE html>
 <html lang="sv">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>AI-summerade nyheter</title>
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <h1>AI-summerade nyheter</h1>
-  <div id="news-container">Laddar nyheter...</div>
+  <header>AI-summerade nyheter<button id="mode-toggle" aria-label="Växla mörkt läge">🌓</button></header>
+  <main>
+    <ul id="news-container"><li>Laddar nyheter...</li></ul>
+  </main>
+
+  <div id="modal" class="modal hidden">
+    <div class="modal-content">
+      <span class="close-button">&times;</span>
+      <h2 id="modal-title"></h2>
+      <div id="modal-meta"></div>
+      <p id="modal-summary"></p>
+      <a id="modal-link" href="#" target="_blank" rel="noopener">Läs hela artikeln på El País ↗</a>
+    </div>
+  </div>
 
   <script src="script.js"></script>
 </body>
