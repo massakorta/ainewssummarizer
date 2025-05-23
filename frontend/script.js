@@ -54,10 +54,11 @@ async function fetchArticles(offset = 0) {
         articles.forEach((article) => {
             const li = document.createElement("li");
             li.className = "article";
+            li.dataset.source = article.source;
             li.innerHTML = `
                 <h2>${article.swedish_title || article.orignal_title}</h2>
                 <div class="short">${article.short_summary}</div>
-                <div class="meta">${article.source} • ${formatFriendlyTime(article.date)}</div>
+                <div class="meta">${formatFriendlyTime(article.date)}</div>
             `;
 
             li.addEventListener("click", () => {
