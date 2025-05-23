@@ -1,4 +1,4 @@
-from flask import Flask, jsonify
+from flask import Flask, jsonify, request
 from flask_cors import CORS
 from supabase_db import supabase
 
@@ -8,7 +8,16 @@ CORS(app)
 @app.route("/articles")
 def get_articles():
     try:
-        result = supabase.table("articles").select("*").order("date", desc=True).execute()
+        limit = request.args.get('limit', default=20, type=int)
+        offset = request.args.get('offset', default=0, type=int)
+        
+        result = supabase.table("articles") \
+            .select("*") \
+            .order("date", desc=True) \
+            .limit(limit) \
+            .offset(offset) \
+            .execute()
+            
         return jsonify(result.data)
     except Exception as e:
         return jsonify({"error": str(e)}), 500
