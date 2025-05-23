@@ -2,7 +2,11 @@
 let isLoading = false;
 let currentOffset = 0;
 const ARTICLES_PER_PAGE = 20;
-const API_URL = "http://localhost:10123"; // Lokal utvecklingsserver
+
+// Välj API URL baserat på om vi kör lokalt eller inte
+const API_URL = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1"
+    ? "http://localhost:10123"  // Lokal utvecklingsserver
+    : "https://ainewssummarizer-api.onrender.com";  // Produktionsserver
 
 function formatFriendlyTime(dateString) {
     const date = new Date(dateString);
