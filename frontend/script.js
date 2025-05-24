@@ -72,14 +72,36 @@ async function fetchArticles(offset = 0) {
     if (isLoading) return;
     isLoading = true;
 
+    const container = document.getElementById("news-container");
+    
     try {
-        const res = await fetch(`${API_URL}/articles?limit=${ARTICLES_PER_PAGE}&offset=${offset}`);
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 sekunders timeout
+        
+        const res = await fetch(`${API_URL}/articles?limit=${ARTICLES_PER_PAGE}&offset=${offset}`, {
+            signal: controller.signal
+        });
+        
+        clearTimeout(timeoutId);
+        
+        if (!res.ok) {
+            throw new Error(`HTTP error! status: ${res.status}`);
+        }
+        
         const articles = await res.json();
-        const container = document.getElementById("news-container");
         
         // Rensa containern endast om det är första laddningen
         if (offset === 0) {
             container.innerHTML = "";
+        }
+
+        if (articles.length === 0 && offset === 0) {
+            container.innerHTML = `
+                <div class="error-message">
+                    <h2>Inga artiklar hittades</h2>
+                    <p>Det finns inga artiklar att visa just nu.</p>
+                </div>`;
+            return 0;
         }
 
         articles.forEach((article) => {
@@ -89,7 +111,7 @@ async function fetchArticles(offset = 0) {
             const categoryClass = getCategoryClass(article.category);
             li.innerHTML = `
                 <div class="category-tag ${categoryClass}">${capitalizeFirstLetter(article.category)}</div>
-                <h2>${article.swedish_title || article.orignal_title}</h2>
+                <h2>${article.swedish_title || article.original_title}</h2>
                 <div class="short">${article.short_summary}</div>
                 <div class="meta">${formatFriendlyTime(article.published)}</div>
             `;
@@ -103,7 +125,7 @@ async function fetchArticles(offset = 0) {
                 const modalCategory = document.getElementById("modal-category");
                 const modalKeywords = document.getElementById("modal-keywords");
                 
-                modalTitle.textContent = article.swedish_title || article.orignal_title;
+                modalTitle.textContent = article.swedish_title || article.original_title;
                 modalSummary.textContent = article.full_summary;
                 modalMeta.textContent = article.source + (article.published ? ` • ${new Date(article.published).toLocaleString("sv-SE")}` : "");
                 modalLink.href = article.url;
@@ -122,8 +144,10 @@ async function fetchArticles(offset = 0) {
                 }
                 
                 // Uppdatera URL:en med artikelns titel (för historik)
-                const titleSlug = (article.swedish_title || article.orignal_title)
+                const titleSlug = (article.swedish_title || article.original_title)
                     .toLowerCase()
+                    .replace(/[åä]/g, 'a')
+                    .replace(/ö/g, 'o')
                     .replace(/[^a-z0-9]+/g, '-')
                     .replace(/^-+|-+$/g, '');
                 history.pushState({ articleId: article.id }, '', `#${titleSlug}`);
@@ -144,10 +168,26 @@ async function fetchArticles(offset = 0) {
         return articles.length;
     } catch (error) {
         console.error("Error fetching articles:", error);
+        
+        // Visa felmeddelande endast om det är första laddningen
+        if (offset === 0) {
+            container.innerHTML = `
+                <div class="error-message">
+                    <h2>Kunde inte ladda artiklar</h2>
+                    <p>${error.name === 'AbortError' 
+                        ? 'Servern svarar inte. Försök igen om en stund.' 
+                        : 'Ett fel uppstod när artiklarna skulle hämtas. Försök igen senare.'}</p>
+                    <button onclick="retryLoad()" class="retry-button">Försök igen</button>
+                </div>`;
+        }
         return 0;
     } finally {
         isLoading = false;
     }
+}
+
+function retryLoad() {
+    fetchArticles(0);
 }
 
 // Infinite scroll hantering
