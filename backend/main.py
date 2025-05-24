@@ -41,7 +41,7 @@ for feed in feeds:
             "published": entry.published.isoformat() if entry.published else None,
             "status": 0,
             "feed_id": feed["id"],
-            "orignal_title": entry.title
+            "original_title": entry.title
         }
         print(f"\n📄 Ny artikel: {entry.title}")
         
