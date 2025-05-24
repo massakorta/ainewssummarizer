@@ -106,7 +106,7 @@ print("\n⚖ Analyserar artiklar med status 2...")
 # Använd samma cutoff som tidigare (dagens start)
 articles_to_check = [
     a for a in get_articles_by_status(2)
-    if a.get("published") and datetime.fromisoformat(a["published"]) >= cutoff
+    if a.get("published") and datetime.fromisoformat(a["published"]).replace(tzinfo=UTC) >= cutoff
 ]
 
 for i, article in enumerate(articles_to_check):
