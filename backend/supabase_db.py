@@ -64,7 +64,7 @@ def update_article_data(article_id: str, update_data: dict) -> None:
         result = supabase.table("articles").update(update_data).eq("id", article_id).execute()
         
         if result and hasattr(result, 'data') and result.data:
-            None
+            pass
         else:
             print("⚠️ Varning: Inget data returnerades från uppdateringen")
     except Exception as e:
@@ -82,7 +82,7 @@ def save_keywords(article_id: str, keywords: list[str]) -> None:
             result = supabase.table("article_keywords").insert(keyword_data).execute()
             
             if result and result.data:
-                None
+                pass
             else:
                 print("⚠️ Varning: Inga nyckelord sparades")
     except Exception as e:
