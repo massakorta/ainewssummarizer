@@ -14,7 +14,6 @@ def save_article_data(article_data: dict) -> str:
         result = supabase.table("articles").insert(article_data).execute()
         if result and result.data:
             article_id = result.data[0].get('id')
-            print(f"✅ Artikel sparad i databasen med ID: {article_id}")
             return article_id
         else:
             print("⚠️ Inget svar från databasen vid sparande av artikel")
@@ -65,7 +64,7 @@ def update_article_data(article_id: str, update_data: dict) -> None:
         result = supabase.table("articles").update(update_data).eq("id", article_id).execute()
         
         if result and hasattr(result, 'data') and result.data:
-            print("✅ Artikel uppdaterad framgångsrikt")
+            None
         else:
             print("⚠️ Varning: Inget data returnerades från uppdateringen")
     except Exception as e:
@@ -83,7 +82,7 @@ def save_keywords(article_id: str, keywords: list[str]) -> None:
             result = supabase.table("article_keywords").insert(keyword_data).execute()
             
             if result and result.data:
-                print("✅ Nyckelord sparade framgångsrikt")
+                None
             else:
                 print("⚠️ Varning: Inga nyckelord sparades")
     except Exception as e:
