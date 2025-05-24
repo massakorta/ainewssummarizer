@@ -9,7 +9,11 @@ const API_URL = window.location.hostname === "localhost" || window.location.host
     : "https://ainewssummarizer-api.onrender.com";  // Produktionsserver
 
 function formatFriendlyTime(dateString) {
+    if (!dateString) return "";
+    
     const date = new Date(dateString);
+    if (isNaN(date.getTime())) return "";
+    
     const now = new Date();
     const diffMs = now - date;
     const diffMin = Math.floor(diffMs / 60000);
@@ -33,9 +37,36 @@ function formatFriendlyTime(dateString) {
       return `Igår, ${time}`;
     }
   
-    const day = date.toISOString().split("T")[0]; // YYYY-MM-DD
-    return `${day} ${time}`;
-  }
+    return date.toLocaleDateString("sv-SE", { 
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+        hour: "2-digit",
+        minute: "2-digit"
+    });
+}
+
+function capitalizeFirstLetter(string) {
+    return string.charAt(0).toUpperCase() + string.slice(1);
+}
+
+function getCategoryClass(category) {
+    const validCategories = [
+        'kultur', 'politik', 'hälsa', 'sport', 'miljö', 
+        'mode', 'utbildning', 'forskning', 'hem, kök och trädgård', 
+        'utrikes', 'ekonomi', 'film', 'hållbarhet', 'teknik', 'övrigt'
+    ];
+    
+    // Normalisera kategorin för CSS-klass användning
+    const normalizedCategory = category.toLowerCase()
+        .replace(/[,\s]+/g, '-')  // Ersätt komma och mellanslag med bindestreck
+        .replace(/[åä]/g, 'a')    // Ersätt å och ä med a
+        .replace(/ö/g, 'o');      // Ersätt ö med o
+    
+    return validCategories.includes(category) 
+        ? `category-${normalizedCategory}` 
+        : 'category-default';
+}
 
 async function fetchArticles(offset = 0) {
     if (isLoading) return;
@@ -55,10 +86,12 @@ async function fetchArticles(offset = 0) {
             const li = document.createElement("li");
             li.className = "article";
             li.dataset.source = article.source;
+            const categoryClass = getCategoryClass(article.category);
             li.innerHTML = `
+                <div class="category-tag ${categoryClass}">${capitalizeFirstLetter(article.category)}</div>
                 <h2>${article.swedish_title || article.orignal_title}</h2>
                 <div class="short">${article.short_summary}</div>
-                <div class="meta">${formatFriendlyTime(article.date)}</div>
+                <div class="meta">${formatFriendlyTime(article.published)}</div>
             `;
 
             li.addEventListener("click", () => {
@@ -67,11 +100,26 @@ async function fetchArticles(offset = 0) {
                 const modalSummary = document.getElementById("modal-summary");
                 const modalLink = document.getElementById("modal-link");
                 const modalMeta = document.getElementById("modal-meta");
+                const modalCategory = document.getElementById("modal-category");
+                const modalKeywords = document.getElementById("modal-keywords");
                 
                 modalTitle.textContent = article.swedish_title || article.orignal_title;
                 modalSummary.textContent = article.full_summary;
-                modalMeta.textContent = article.source + " • " + new Date(article.date).toLocaleString("sv-SE");
+                modalMeta.textContent = article.source + (article.published ? ` • ${new Date(article.published).toLocaleString("sv-SE")}` : "");
                 modalLink.href = article.url;
+                modalCategory.textContent = capitalizeFirstLetter(article.category);
+                modalCategory.className = `category-tag ${getCategoryClass(article.category)}`;
+                
+                // Hantera nyckelord
+                if (article.keywords && article.keywords.length > 0) {
+                    const keywordTags = article.keywords
+                        .map(keyword => `<span class="keyword-tag">${capitalizeFirstLetter(keyword)}</span>`)
+                        .join("");
+                    modalKeywords.innerHTML = keywordTags;
+                    modalKeywords.style.display = "block";
+                } else {
+                    modalKeywords.style.display = "none";
+                }
                 
                 // Uppdatera URL:en med artikelns titel (för historik)
                 const titleSlug = (article.swedish_title || article.orignal_title)
