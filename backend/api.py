@@ -15,10 +15,10 @@ def get_articles():
         except ValueError:
             return jsonify({"error": "Ogiltiga parametrar"}), 400
         
-        # Hämta artiklar med status 2 (AI-processade) och deras nyckelord
+        # Hämta artiklar med status 2 (AI-processade) eller 3 (dubbletter) och deras nyckelord
         result = supabase.table("articles") \
             .select("*, article_keywords(keyword)") \
-            .eq("status", 2) \
+            .in_("status", [2, 3]) \
             .order("published", desc=True) \
             .limit(limit) \
             .offset(offset) \

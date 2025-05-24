@@ -101,13 +101,16 @@ from difflib import SequenceMatcher
 def is_similar(a, b, threshold=0.8):
     return SequenceMatcher(None, a, b).ratio() > threshold
 
-print("\n⚖ Analyserar artiklar med status 2...")
+print("\n⚖ Analyserar nya artiklar med status 2...")
 
 # Använd samma cutoff som tidigare (dagens start)
 articles_to_check = [
     a for a in get_articles_by_status(2)
     if a.get("published") and datetime.fromisoformat(a["published"]).replace(tzinfo=UTC) >= cutoff
 ]
+
+# Hämta alla existerande artiklar (status 2 och 3) för jämförelse
+all_existing_articles = get_articles_by_status(2) + get_articles_by_status(3)
 
 for i, article in enumerate(articles_to_check):
     if not article.get("full_summary") or not article.get("swedish_title"):
@@ -116,9 +119,8 @@ for i, article in enumerate(articles_to_check):
         continue
 
     found_duplicate = False
-    for j, other in enumerate(articles_to_check):
-        if i == j:
-            continue
+    # Jämför med ALLA existerande artiklar, inte bara de nya
+    for other in all_existing_articles:
         if other["id"] == article["id"]:
             continue
         if other["category"] != article["category"]:
@@ -132,6 +134,8 @@ for i, article in enumerate(articles_to_check):
             found_duplicate = True
             break
 
-    if not found_duplicate:
-        update_article_data(article["id"], {"status": 4})
+    # Endast uppdatera status om vi hittade en dubblett
+    if found_duplicate:
+        print(f"📑 Markerad som dubblett: {article['swedish_title']}")
+    else:
         print(f"✅ Unik artikel: {article['swedish_title']}")
