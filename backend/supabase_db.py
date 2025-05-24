@@ -26,3 +26,9 @@ def save_article_data(article_data: dict) -> None:
 def article_exists(url: str) -> bool:
     result = supabase.table("articles").select("url").eq("url", url).execute()
     return len(result.data) > 0
+
+def load_active_feeds() -> list[dict]:
+    response = supabase.table("feeds").select("id,name,url").eq("enabled", True).execute()
+    if response.data:
+        return [{"id": feed["id"], "name": feed["name"], "url": feed["url"]} for feed in response.data]
+    return []

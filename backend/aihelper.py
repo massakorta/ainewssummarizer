@@ -1,38 +1,29 @@
 import os
 from openai import OpenAI
 
-def summarize_article(text: str, max_length: int = 300) -> str:
+def summarize_to_structure(text: str) -> dict:
+    import json
     client = OpenAI(api_key=os.getenv('OPENAI_API_KEY'))
-    response = client.chat.completions.create(
-        model="gpt-3.5-turbo",
-        messages=[
-            {"role": "system", "content": "Du är en svensk journalist, och riktigt bra på att sammanfatta artiklar,koncist och objektivt med enkel svenska."},
-            {"role": "user", "content": f"Sammanfatta följande spanska nyhetsartikel på svenska till max {max_length} tecken: \n\n{text}"}
-        ],
-        max_tokens=300
-    )
-    return response.choices[0].message.content
+    prompt = f"""Sammanfatta följande spanska nyhetsartikel på svenska och returnera exakt detta JSON-objekt:
 
-def translate_to_swedish(text: str) -> str:
-    client = OpenAI(api_key=os.getenv('OPENAI_API_KEY'))
-    response = client.chat.completions.create(
-        model="gpt-3.5-turbo",
-        messages=[
-            {"role": "system", "content": "Du är en översättare av text från spanska till svenska. Det ska vara så korrekt översättning som möjligt."},
-            {"role": "user", "content": f"Översätt följande text till svenska. Ge endast översättningen utan förklaringar:\n\n{text}"}
-        ],
-        max_tokens=100
-    )
-    return response.choices[0].message.content.strip()
+{{
+  "headline": (en intressant rubrik på max 30 tecken),
+  "short_summary": (ca 125 tecken lång sammanfattning),
+  "long_summary": (ca 600 tecken som förklarar innehållet tydligt),
+  "category": (en kategori som t.ex. 'utrikes', 'politik', 'sport', 'kultur'),
+  "keywords": (en lista med 3 till 7 viktiga nyckelord)
+}}
 
-def shorten_the_summary(summary: str, max_length: int = 60) -> str:
-    client = OpenAI(api_key=os.getenv('OPENAI_API_KEY'))
+Svara endast med ett JSON-objekt och ingenting annat. Här är artikeln:\n\n{text}"""
     response = client.chat.completions.create(
-        model="gpt-3.5-turbo",
-        messages=[
-            {"role": "system", "content": f"Du är en svensk journalist, och riktigt bra på att sammanfatta artiklar, koncist och objektivt med enkel svenska."},
-            {"role": "user", "content": f"Sammanfatta denna text till max {max_length} tecken:\n\n{summary}"}
-        ],
-        max_tokens=100
+        model="gpt-4.1-nano",
+        instructions="Du är en svensk journalist som sammanfattar nyheter på ett enkelt och strukturerat sätt.",
+        input=prompt,
+        max_tokens=800,
+        response_format="json"
     )
-    return response.choices[0].message.content.strip()
+    try:
+        return json.loads(response.choices[0].message.content)
+    except json.JSONDecodeError:
+        print("⚠️ Kunde inte tolka GPT-svaret som JSON:", response.choices[0].message.content)
+        return {}
