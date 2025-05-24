@@ -10,8 +10,3 @@ services:
     env: python
     buildCommand: ""
     startCommand: python api.py
-    envVars:
-      - key: SUPABASE_URL
-        value: https://frirrqffzxlhoqwytzuu.supabase.co
-      - key: SUPABASE_KEY
-        value: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZyaXJycWZmenhsaG9xd3l0enV1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDc5MTc4ODAsImV4cCI6MjA2MzQ5Mzg4MH0.0__UyLy8PQLjfLRVHvzzdeesScwFuHZ3_a5UCXBrwkc

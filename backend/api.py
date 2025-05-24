@@ -8,17 +8,30 @@ CORS(app)
 @app.route("/articles")
 def get_articles():
     try:
-        limit = request.args.get('limit', default=20, type=int)
-        offset = request.args.get('offset', default=0, type=int)
+        # Validera och hämta query parameters
+        try:
+            limit = min(int(request.args.get('limit', 20)), 100)  # Max 100 artiklar per request
+            offset = max(int(request.args.get('offset', 0)), 0)   # Inte tillåta negativ offset
+        except ValueError:
+            return jsonify({"error": "Ogiltiga parametrar"}), 400
         
+        # Hämta artiklar med status 2 (AI-processade) och deras nyckelord
         result = supabase.table("articles") \
-            .select("*") \
-            .order("date", desc=True) \
+            .select("*, article_keywords(keyword)") \
+            .eq("status", 2) \
+            .order("published", desc=True) \
             .limit(limit) \
             .offset(offset) \
             .execute()
             
-        return jsonify(result.data)
+        # Formatera om svaret för att få nyckelorden som en lista
+        articles = []
+        for article in result.data:
+            keywords = [k["keyword"] for k in article.pop("article_keywords", [])]
+            article["keywords"] = keywords
+            articles.append(article)
+            
+        return jsonify(articles)
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
