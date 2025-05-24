@@ -1,9 +1,8 @@
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, UTC
 from dotenv import load_dotenv
 load_dotenv()
 import requests
 from bs4 import BeautifulSoup
-import os
 
 def extract_article_text(url: str) -> str:
     try:
@@ -21,40 +20,41 @@ from supabase_db import save_article_data, article_exists, load_active_feeds
 
 feeds = load_active_feeds()
 
-cutoff = datetime.utcnow() - timedelta(hours=24)
+# Sätt cutoff till midnatt idag (00:00)
+today = datetime.now(UTC).replace(hour=0, minute=0, second=0, microsecond=0)
+cutoff = today  # Använd dagens start istället för 24 timmar bakåt
 
 print("🔍 Hämtar dagens nyheter...\n")
 all_entries = []
 for feed in feeds:
     entries = fetch_rss_entries_today(feed["url"])
     for entry in entries:
-        entry_time = entry.published_parsed if hasattr(entry, "published_parsed") else None
-        if entry_time:
-            published_dt = datetime(*entry_time[:6])
-            if published_dt < cutoff:
-                print(f"⏩ Hoppar över gammal artikel: {entry.title}")
-                continue
-        if article_exists(entry.link):
-            print(f"⏩ Hoppar över redan sparad artikel i databasen: {entry.title}")
+        if entry.published and entry.published < cutoff:
+            print(f"⏩ Hoppar över gammal artikel: {entry.title}")
             continue
-
-        print(f"📰 Titel: {entry.title}")
-        print(f"🔗 Länk: {entry.link}\n")
+        if article_exists(entry.link):
+            continue
 
         article_data = {
             "url": entry.link,
             "source": feed["name"],
-            "published": entry.published if hasattr(entry, "published") else None,
+            "published": entry.published.isoformat() if entry.published else None,
             "status": 0,
-            "feed_id": feed["id"]
+            "feed_id": feed["id"],
+            "orignal_title": entry.title
         }
-        save_article_data(article_data)
+        print(f"\n📄 Ny artikel: {entry.title}")
+        
+        article_id = save_article_data(article_data)
+        if not article_id:
+            print("❌ Kunde inte spara artikeln i databasen")
+            continue
 
 from supabase_db import get_articles_by_status, update_article_data, save_keywords
 from aihelper import summarize_to_structure
 import time
 
-print("✍️ Bearbetar artiklar med status 0...")
+print("\n✍️ Bearbetar artiklar med status 0...")
 
 articles = get_articles_by_status(0)
 
@@ -68,6 +68,14 @@ for article in articles:
             continue
 
         result = summarize_to_structure(text)
+        
+        # Validera AI-svaret
+        required_fields = ["headline", "short_summary", "long_summary", "category"]
+        missing_fields = [field for field in required_fields if not result.get(field)]
+        if missing_fields:
+            print(f"❌ AI-svaret saknar obligatoriska fält: {', '.join(missing_fields)}")
+            update_article_data(article["id"], {"status": -3})
+            continue
 
         update_data = {
             "swedish_title": result["headline"],
@@ -78,7 +86,6 @@ for article in articles:
         }
 
         update_article_data(article["id"], update_data)
-
         save_keywords(article["id"], result.get("keywords", []))
 
         print("✅ Klar:", result["headline"])
@@ -96,7 +103,7 @@ def is_similar(a, b, threshold=0.8):
 
 print("\n⚖ Analyserar artiklar med status 2...")
 
-cutoff = datetime.utcnow() - timedelta(hours=24)
+# Använd samma cutoff som tidigare (dagens start)
 articles_to_check = [
     a for a in get_articles_by_status(2)
     if a.get("published") and datetime.fromisoformat(a["published"]) >= cutoff
